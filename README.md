@@ -1,22 +1,3 @@
-# Log Watcher (Go Version)
-
-## Description
-
-Log Watcher, It Will Print The Log in The Log Text View Using Golang and tview
-
-## Current State
-
-- Able To View `journalctl` cmd
-- Add TUI 
-
-## Need To Add
-
-- Mode Between Search Input And View And Scroll Input
-- The Log TextView should be able to Scroll
-- Able To Search The Log
-- Add Checkbox To See which Log to be Shown in TextView
-- Might As Well Add Pipe function where when type `any log cmd | log-watcher` so It fetch any log from it and show it into terminal
-
 # Log Watcher (Go)
 
 Log Watcher is a terminal-based log viewer written in Go using tview.
