@@ -1,26 +1,19 @@
-package log
+package logger
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"log"
 
 	"github.com/rivo/tview"
 )
 
-func Pipe(out io.ReadCloser, app *tview.Application, tv *tview.TextView) {
-	scanner := bufio.NewScanner(out)
+type Log interface {
+	Parse() string
+}
 
-	for scanner.Scan() {
-		line := scanner.Text()
-
+func Pipe(ch <-chan Log, app *tview.Application, view *tview.TextView) {
+	for watch := range ch {
 		app.QueueUpdateDraw(func() {
-			fmt.Fprint(tv, line+"\n")
+			fmt.Fprint(view, watch.Parse()+"\n")
 		})
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Println("JournalCTL failed to scan: ", err.Error())
 	}
 }

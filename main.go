@@ -6,7 +6,7 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/ikhwanal/log_go/src/layout"
-	logger "github.com/ikhwanal/log_go/src/log"
+	"github.com/ikhwanal/log_go/src/logger"
 	"github.com/rivo/tview"
 )
 
@@ -67,8 +67,8 @@ func main() {
 		return event
 	})
 
-	out := logger.WatchJournal()
-	go logger.Pipe(out, app, logContent.TView)
+	watch := logger.WatchJournal()
+	go logger.Pipe(watch, app, logContent.TView)
 
 	if err := app.SetRoot(flexGlobal, true).SetFocus(flexGlobal).Run(); err != nil {
 		panic(err)

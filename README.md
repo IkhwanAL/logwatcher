@@ -10,13 +10,13 @@ Think of it as a calm, structured window into noisy logs.
 - View logs from journalctl
 - Terminal User Interface (TUI) built with tview
 - Logs rendered in a dedicated text view instead of raw stdout
+- Input modes
+  - Switch between log viewing, and search input
+- Scrollable log view
+  - Smooth scrolling through long log output
 
 ## Planned Features
 
-- Input modes
-  - Switch between log viewing, scrolling, and search input
-- Scrollable log view
-  - Smooth scrolling through long log output
 - Log search
   - Filter or highlight matching log entries
 - Log source selection
