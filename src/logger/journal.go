@@ -2,6 +2,7 @@ package logger
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"log"
 	"os/exec"
@@ -63,11 +64,9 @@ func (j *Journal) getPriority() string {
 		return "[[white]INFO[-]]"
 	case 7:
 		return "[[gray]DEBUG[-]]"
-	default:
-		return "[[blue]NONE[-]]"
 	}
 
-	return ""
+	return "[[blue]NONE[-]]"
 }
 
 func (j *Journal) isCoreDump() bool {
@@ -107,31 +106,41 @@ func (j *Journal) Parse() string {
 }
 
 // Creating A Pipeline And Start Plumbing
-func WatchJournal() <-chan Log {
+func WatchJournal(ctx context.Context) <-chan Log {
 	ch := make(chan Log)
-	cmd := exec.Command("journalctl", "-f", "", "--output=json")
+	cmd := exec.CommandContext(ctx, "journalctl", "-f", "--output=json")
 	out, err := cmd.StdoutPipe()
 
 	if err != nil {
-		log.Fatal("Failed To Pipe In To Log TUI ")
+		close(ch)
+		log.Print("Failed To Pipe In To Log TUI ")
+		return nil
 	}
 
 	if err = cmd.Start(); err != nil {
-		log.Fatal("Failed To Start The Plumbing")
+		close(ch)
+		log.Print("Failed To Start The Plumbing")
+		return nil
 	}
 
 	go func() {
 		defer close(ch)
+		defer cmd.Wait()
 
 		scanner := bufio.NewScanner(out)
 
 		for scanner.Scan() {
 			var j Journal
 			if err := json.Unmarshal(scanner.Bytes(), &j); err != nil {
-				log.Fatal("Failed To Reflect Journal: " + err.Error())
+				log.Print("Failed To Reflect Journal: " + err.Error())
+				continue
 			}
 
 			ch <- &j
+		}
+
+		if err := scanner.Err(); err != nil {
+			log.Print("failed to scan the log")
 		}
 	}()
 

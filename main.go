@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -33,6 +34,8 @@ func main() {
 	logContent := layout.NewLogView()
 	flexGlobal.AddItem(logContent.Layout, 0, 4, false)
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	// Capture Keystroke to Change Mode
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
@@ -60,6 +63,7 @@ func main() {
 		}
 
 		if event.Key() == tcell.KeyEsc {
+			cancel()
 			app.Stop()
 			return nil
 		}
@@ -67,7 +71,7 @@ func main() {
 		return event
 	})
 
-	watch := logger.WatchJournal()
+	watch := logger.WatchJournal(ctx)
 	go logger.Pipe(watch, app, logContent.TView)
 
 	if err := app.SetRoot(flexGlobal, true).SetFocus(flexGlobal).Run(); err != nil {
