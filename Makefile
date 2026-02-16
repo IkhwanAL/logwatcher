@@ -9,7 +9,7 @@ endif
 
 run:
 	@echo "🏃 Running $(APP_NAME) with race detection..."
-	go run -race main.go state.go
+	go run -race main.go
 
 tests:
 	@echo "🧪 Running tests with race detection..."
@@ -24,4 +24,4 @@ fmt:
 
 build:
 	@echo "Im Building A Go Binary"
-	go build -race -o bin/$(BIN_NAME) main.go state.go
+	go build -race -o bin/$(BIN_NAME) main.go

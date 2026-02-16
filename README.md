@@ -43,3 +43,7 @@ Tech Stack
 
 - Go
 - tview
+
+### Current
+
+Right Now I need something to tell the log when to render the search

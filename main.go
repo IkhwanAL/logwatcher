@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/ikhwanal/log_go/src"
 	"github.com/ikhwanal/log_go/src/layout"
 	"github.com/ikhwanal/log_go/src/logger"
 	"github.com/rivo/tview"
@@ -22,17 +23,26 @@ func main() {
 
 	log.SetOutput(outLog)
 
-	state := NewState()
+	state := src.NewState()
 
 	app := tview.NewApplication()
 
-	flexGlobal := tview.NewFlex().SetDirection(tview.FlexRow)
-
-	topView := layout.NewTopView()
-	flexGlobal.AddItem(topView.Layout, 3, 0, false)
-
+	topView := layout.NewTopView(&state.Search)
 	logContent := layout.NewLogView()
+	botView := layout.NewBottomView()
+
+	flexGlobal := tview.NewFlex().SetDirection(tview.FlexRow)
+	flexGlobal.AddItem(topView.Layout, 3, 0, false)
 	flexGlobal.AddItem(logContent.Layout, 0, 4, false)
+	flexGlobal.AddItem(botView.TView, 3, 0, false)
+
+	botView.SetText("Command Mode")
+
+	draw := src.NewRenderLog(app, logContent.TView, state)
+
+	topView.SetChangeFunc(func() {
+		draw.FilterContentAndDraw()
+	})
 
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -40,31 +50,42 @@ func main() {
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
 		case 's': // Search Mode
-			if state.FocusOn == Search {
+			if state.FocusOn == src.Search {
 				break
 			}
-			state.FocusOn = Search
+			state.FocusOn = src.Search
 			app.SetFocus(topView.InputField)
+			botView.SetText("Search Mode")
 			return nil
-		case 'v':
-			if state.FocusOn == ViewLog {
+		case 'v': // View Mode
+			if state.FocusOn == src.ViewLog {
 				break
 			}
-			state.FocusOn = ViewLog
+			state.FocusOn = src.ViewLog
 			app.SetFocus(logContent.TView)
+			botView.SetText("View Mode")
 			return nil
-		case 'c':
-			if state.FocusOn == Command {
+		case 'c': // Command Mode
+			if state.FocusOn == src.Command {
 				break
 			}
-			state.FocusOn = Command
+			state.FocusOn = src.Command
 			app.SetFocus(nil)
+			botView.SetText("Command Mode")
+			return nil
+		case 'q':
+			cancel()
+			app.Stop()
 			return nil
 		}
 
 		if event.Key() == tcell.KeyEsc {
-			cancel()
-			app.Stop()
+			if state.FocusOn == src.Command {
+				return event
+			}
+			state.FocusOn = src.Command
+			app.SetFocus(nil)
+			botView.SetText("Command Mode")
 			return nil
 		}
 
@@ -72,7 +93,8 @@ func main() {
 	})
 
 	watch := logger.WatchJournal(ctx)
-	go logger.Pipe(watch, app, logContent.TView)
+
+	go logger.Pipe(watch, state, draw)
 
 	if err := app.SetRoot(flexGlobal, true).SetFocus(flexGlobal).Run(); err != nil {
 		panic(err)

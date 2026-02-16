@@ -1,6 +1,8 @@
 package layout
 
-import "github.com/rivo/tview"
+import (
+	"github.com/rivo/tview"
+)
 
 type LogContent struct {
 	Layout *tview.Flex
@@ -21,4 +23,8 @@ func NewLogView() *LogContent {
 	lv.Layout.AddItem(lv.TView, 0, 1, true)
 
 	return lv
+}
+
+func (lv *LogContent) GetText(stripAllTags bool) string {
+	return lv.TView.GetText(stripAllTags)
 }

@@ -135,7 +135,6 @@ func WatchJournal(ctx context.Context) <-chan Log {
 				log.Print("Failed To Reflect Journal: " + err.Error())
 				continue
 			}
-
 			ch <- &j
 		}
 
