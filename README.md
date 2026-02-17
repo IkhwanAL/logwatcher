@@ -14,11 +14,11 @@ Think of it as a calm, structured window into noisy logs.
   - Switch between log viewing, and search input
 - Scrollable log view
   - Smooth scrolling through long log output
+- Log search
+  - Filter or highlight matching log entries
 
 ## Planned Features
 
-- Log search
-  - Filter or highlight matching log entries
 - Log source selection
   - Checkbox-based selection for which logs are shown
 - Pipe support
